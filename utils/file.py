@@ -1,8 +1,10 @@
 import os
+from loguru import logger
 
 
 def mkdir(path):
     os.makedirs(path, exist_ok=True)
+    logger.info(f'mkdir: {path}')
 
 
 def mkfile(content, dir_path, file_name):
