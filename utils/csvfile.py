@@ -2,6 +2,9 @@ import pandas as pd
 
 
 def merge_csv_with_conflicts(file1, file2, output_path):
+    """
+    合并两个csv文件，如果有冲突则返回冲突的内容
+    """
     names = ['file_name', 'size', 'md5']
 
     df1 = pd.read_csv(file1, header=None, names=names)
