@@ -1,0 +1,10 @@
+TabbedContent {
+    overflow: scroll;
+    height: 1fr;
+}
+
+#readme {
+    width: 100%;
+}
+
+
