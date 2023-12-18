@@ -18,6 +18,11 @@ def merge_csv_with_conflicts(file1, file2, output_path=None, flag='merge'):
     if flag == 'difference':
         return conflicts
 
+    if flag == 'right':
+        conflicts = conflicts.drop(['size_file1', 'md5_file1'], axis=1)
+        conflicts = conflicts.dropna(axis=0, how='any')
+        return conflicts
+
     if flag == 'merge':
         # 如果有值是空的则舍弃
         conflicts = conflicts.dropna(axis=0, how='any')
