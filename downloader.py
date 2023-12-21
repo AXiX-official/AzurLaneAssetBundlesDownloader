@@ -123,9 +123,10 @@ class Downloader:
         将files文件夹下的文件移动到history文件夹下
         """
         if init_flag:
-            path = os.path.join(history_path, '2020-01-01')
+            mkdir(history_path)
+            path = os.path.join(history_path, '2020-01-01-00-00')
         else:
-            date = datetime.now().strftime('%Y-%m-%d')
+            date = datetime.now().strftime('%Y-%m-%d-%H-%M')
             path = os.path.join(history_path, date)
         mkdir(path)
         for file in os.listdir(files_path):
@@ -156,7 +157,7 @@ class Downloader:
         return True
 
     def download_new_assetbundles(self, type_list: List[int]):
-        date = datetime.now().strftime('%Y-%m-%d')
+        date = datetime.now().strftime('%Y-%m-%d-%H-%M')
         path = os.path.join(assetbundles_path, date)
         os.makedirs(path, exist_ok=True)
         for type_id in type_list:
