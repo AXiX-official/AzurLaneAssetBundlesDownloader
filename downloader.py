@@ -1,15 +1,19 @@
 import os
 import shutil
 import json
+import fnmatch
 from loguru import logger
 from typing import List
 from datetime import datetime
 import pandas as pd
+from tqdm import tqdm
+from time import sleep
 
 from utils.file import mkdir
 from utils.network import get_hashfile_url, download_file, download_assetbundle
 from utils.csvfile import merge_csv_with_conflicts
 from utils.logs import new_log
+from typing import Generator
 
 work_path = os.path.dirname(__file__)
 cache_path = os.path.join(work_path, 'cache')
@@ -36,10 +40,11 @@ hash_csv_name = {
 
 class Downloader:
 
-    apk_version: str = None
-    hashfile_url: dict = None
-    to_download: List[str] = None
+    apk_version: str
+    hashfile_url: dict
+    to_download: List[str]
     version_file_flag: bool = False
+    diff_list: List[int] = []
 
     def __init__(self) -> None:
         new_log()
@@ -93,7 +98,7 @@ class Downloader:
         logger.info(f'remote hashfile:{hashfile_name} url:{url}')
         download_file(url, path, hashfile_name)
         logger.info(f'remote hashfile:{hashfile_name} saved to {path}')
-    def download_remote_hashfiles(self, flag="files") -> None:
+    def download_remote_hashfiles(self, flag="files") -> Generator[str, None, None]:
         """
         下载远端的hash文件
         """
@@ -103,6 +108,7 @@ class Downloader:
             path = cache_path
         for key, value in hash_csv_name.items():
             self.download_hashfile(hash_type=key, path=path)
+            yield f"{key} hashfile downloaded"
 
     def update_version_json(self) -> None:
         """
@@ -133,33 +139,54 @@ class Downloader:
             shutil.copy(os.path.join(files_path, file), os.path.join(path, file))
         logger.info(f'files copied to history')
 
-    def check(self):
-        logger.info(f'checking...')
-        if self.get_difference():
-            logger.info(f'former hash files deleted')
-            #shutil.rmtree(files_path)
-            for key, value in hash_csv_name.items():
-                shutil.move(os.path.join(cache_path, value), os.path.join(files_path, value))
-                logger.info(f'new hash files moved to files')
-            self.update_version_json()
-            self.to_history()
+    def check(self) -> Generator[str, None, None]:
+        logger.info('checking...')
+        yield from self.get_difference()
+        if not self.check_diff_files():
+            logger.info('no difference found')
+            yield 'warn:no difference found'
+            return
+        yield 'info:difference found'
+        logger.info('former hash files deleted')
+        #shutil.rmtree(files_path)
+        for key, value in hash_csv_name.items():
+            shutil.move(os.path.join(cache_path, value), os.path.join(files_path, value))
+            logger.info(f'new hash files moved to files')
+        yield 'info:new hash files moved to files'
+        self.update_version_json()
+        yield 'info:version.json updated'
+        self.to_history()
+        yield 'info:files copied to history'
+        logger.info(f"{sum(self.diff_list)} files need to be updated")
+        yield f"{sum(self.diff_list)} files need to be updated"
 
-    def get_difference(self) -> bool:
+    def check_diff_files(self) -> bool:
+        for file in os.listdir(cache_path):
+            if fnmatch.fnmatch(file, '*_difference.csv'):
+                return True
+        return False
+
+    def get_difference(self) -> Generator[str, None, None]:
         """
         获取本地和远端的hash文件的差异
         """
-        self.download_remote_hashfiles(flag='cache')
+        yield from self.download_remote_hashfiles(flag='cache')
+        yield 'info:remote hash files downloaded'
         for key, value in hash_csv_name.items():
             difference = merge_csv_with_conflicts(os.path.join(files_path, value), os.path.join(cache_path, value), flag='right')
             if not difference.empty:
                 logger.info(f'{len(difference)} files need to be updated in {key}')
+                self.diff_list.append(len(difference))
                 difference.to_csv(os.path.join(cache_path, f'{key}_difference.csv'), index=False, header=False)
-        return True
+            else:
+                self.diff_list.append(0)
+            yield f"{key} comparison completed"
 
     def download_new_assetbundles(self, type_list: List[int]):
         date = datetime.now().strftime('%Y-%m-%d-%H-%M')
         path = os.path.join(assetbundles_path, date)
         os.makedirs(path, exist_ok=True)
+        yield 'info:assetbundles folder created'
         for type_id in type_list:
             key = list(hash_csv_name.keys())[type_id]
             logger.info(f'downloading {key}...')
@@ -173,3 +200,4 @@ class Downloader:
                 logger.info(f'downloading {url}')
                 download_assetbundle(url, path, file_name)
                 logger.info(f'{file_name} saved to {path}')
+                yield f'{file_name} saved'

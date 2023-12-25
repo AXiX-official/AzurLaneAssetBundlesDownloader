@@ -10,7 +10,7 @@ log_dir = os.path.join(work_path, 'logs')
 
 def new_log(info='new log', logdir=log_dir):
     mkdir(logdir)
-    #logger.remove(0)
+    logger.remove(0)
     logger.add(os.path.join(logdir, "{time}.log"))
     logger.info(info)
     logger.info(f'logdir: {logdir}')

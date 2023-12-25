@@ -20,11 +20,19 @@ def send_tcp_request(server_ip: str, server_port: int, hex_message: str) -> byte
     return data
 
 
-def download_file(url: str, dir_path: str, file_name: str) -> None:
+"""def download_file(url: str, dir_path: str, file_name: str) -> None:
     r = requests.get(url)
     content = r.content.decode("utf-8")
-    file.mkfile(content, dir_path, file_name)
+    file.mkfile(content, dir_path, file_name)"""
 
+def download_file(url: str, dir_path: str, file_name: str) -> None:
+    with requests.get(url, stream=True) as r:
+        r.raise_for_status()
+        
+        with open(os.path.join(dir_path, file_name), 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
 
 def get_hashfile_url() -> Tuple[str, Dict[str, str]]:
     """

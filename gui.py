@@ -3,7 +3,8 @@ import os
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll, HorizontalScroll, Container
 from textual.widget import Widget
-from textual.widgets import Static, Log, Markdown, Button, SelectionList
+from textual.widgets import Static, Log, Markdown, Button, SelectionList, ProgressBar, Label
+from textual.reactive import Reactive
 
 path = os.path.dirname(__file__)
 path = os.path.join(path, "md")
@@ -52,6 +53,8 @@ class InitView(HorizontalScroll):
         yield Markdown(Init_MD, id="init-md")
         with Container(id="init-button-container"):
             yield Button("Init", id="init-button", disabled=True)
+            yield Label("Progress Bar",id="init-label")
+            yield ProgressBar(id="init-progressbar", show_eta=True)
 
 class FileUpdate(HorizontalScroll):
     DEFAULT_CSS = """
@@ -60,14 +63,14 @@ class FileUpdate(HorizontalScroll):
         height: 100%;
         overflow: scroll;
     }
-    #radio-container {
+    #file-update-container {
         width: 1fr;
     }
     """
 
     def compose(self) -> ComposeResult:
         yield Markdown(FileUpdate_MD, id="md")
-        with Container(id="radio-container"):
+        with Container(id="file-update-container"):
             yield SelectionList[int](  
                 ("az", 0, True),
                 ("cv", 1, True),
@@ -77,7 +80,10 @@ class FileUpdate(HorizontalScroll):
                 ("painting", 5, True),
                 ("manga", 6, True),
                 ("ciper", 7, True),
+                id="file-update-selectionlist",
             )
             with HorizontalScroll(id="buttons"):
                 yield Button("Check", id="check-button")
-                yield Button("Download", id="download-button")
+                yield Button("Download", id="download-button", disabled=True)
+            yield Label("Progress Bar",id="file-update-label")
+            yield ProgressBar(id="file-update-progressbar", show_eta=True)
