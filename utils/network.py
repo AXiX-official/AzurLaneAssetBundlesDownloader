@@ -2,9 +2,9 @@ import socket
 import requests
 import os
 from typing import Tuple, Dict
+import re
 
 import utils.file as file
-import re
 
 
 def send_tcp_request(server_ip: str, server_port: int, hex_message: str) -> bytes:

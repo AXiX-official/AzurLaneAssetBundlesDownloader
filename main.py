@@ -1,5 +1,5 @@
-from loguru import logger
 from threading import Thread
+from loguru import logger
 
 from textual.app import App, ComposeResult
 from textual.widgets import Footer, Header, Log, TabbedContent, Markdown, Static, Button, SelectionList, ProgressBar, Label
