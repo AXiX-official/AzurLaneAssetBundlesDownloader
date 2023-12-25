@@ -7,7 +7,7 @@ from textual.reactive import var
 from textual import on
 from textual.events import Mount
 
-from gui import MD, Update_MD, LogView, InitView, FileUpdate
+from ui import MD, Update_MD, LogView, InitView, FileUpdate
 from downloader import Downloader
 
 
