@@ -98,6 +98,7 @@ class Downloader:
         logger.info(f'remote hashfile:{hashfile_name} url:{url}')
         download_file(url, path, hashfile_name)
         logger.info(f'remote hashfile:{hashfile_name} saved to {path}')
+        
     def download_remote_hashfiles(self, flag="files") -> Generator[str, None, None]:
         """
         下载远端的hash文件

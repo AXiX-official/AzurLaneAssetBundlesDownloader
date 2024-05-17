@@ -20,26 +20,26 @@ def send_tcp_request(server_ip: str, server_port: int, hex_message: str) -> byte
     return data
 
 
-"""def download_file(url: str, dir_path: str, file_name: str) -> None:
+def download_file(url: str, dir_path: str, file_name: str) -> None:
     r = requests.get(url)
     content = r.content.decode("utf-8")
-    file.mkfile(content, dir_path, file_name)"""
+    file.mkfile(content, dir_path, file_name)
 
-def download_file(url: str, dir_path: str, file_name: str) -> None:
+"""def download_file(url: str, dir_path: str, file_name: str) -> None:
     with requests.get(url, stream=True) as r:
         r.raise_for_status()
         
         with open(os.path.join(dir_path, file_name), 'wb') as f:
             for chunk in r.iter_content(chunk_size=8192):
                 if chunk:
-                    f.write(chunk)
+                    f.write(chunk)"""
 
 def get_hashfile_url() -> Tuple[str, Dict[str, str]]:
     """
     从服务器获取最新的apk链接和hash文件链接并返回apk链接和hash文件链接字典
     :return: apk_version: str, hashfile_url: dict
     """
-    raw_data = send_tcp_request('203.107.54.123', 80, '000a002a3000000837120130')
+    raw_data = send_tcp_request('203.107.54.123', 80, '000a002a300000083b120130')
     data = raw_data.decode("utf-8", "ignore")
     apk_version = re.findall(r'(https?://\S+)\"', data)
     hashes = re.findall(r'\$(.*?)hash(.*?)\"', data)
@@ -56,3 +56,8 @@ def download_assetbundle(url: str, dir_path: str, file_name: str) -> None:
     file_path = os.path.join(dir_path, file_name)
     with open(file_path, "wb") as f:
         f.write(content)
+
+if __name__ == "__main__":
+    raw_data = send_tcp_request('203.107.54.123', 80, '000a002a300000083b120130')
+    data = raw_data.decode("utf-8", "ignore")
+    print(data)
