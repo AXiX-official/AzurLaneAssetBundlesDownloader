@@ -39,7 +39,7 @@ def get_hashfile_url() -> Tuple[str, Dict[str, str]]:
     从服务器获取最新的apk链接和hash文件链接并返回apk链接和hash文件链接字典
     :return: apk_version: str, hashfile_url: dict
     """
-    raw_data = send_tcp_request('203.107.54.123', 80, '000a002a300000083b120130')
+    raw_data = send_tcp_request('203.107.54.123', 80, '000a002a300000083d120130')
     data = raw_data.decode("utf-8", "ignore")
     apk_version = re.findall(r'(https?://\S+)\"', data)
     hashes = re.findall(r'\$(.*?)hash(.*?)\"', data)
@@ -58,6 +58,6 @@ def download_assetbundle(url: str, dir_path: str, file_name: str) -> None:
         f.write(content)
 
 if __name__ == "__main__":
-    raw_data = send_tcp_request('203.107.54.123', 80, '000a002a300000083b120130')
+    raw_data = send_tcp_request('203.107.54.123', 80, '000a002a300000083d120130')
     data = raw_data.decode("utf-8", "ignore")
     print(data)
